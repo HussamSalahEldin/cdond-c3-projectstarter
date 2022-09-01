@@ -16,9 +16,9 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udaproject-backend-<<parameters.Workflow_ID>>
-            aws cloudformation delete-stack --stack-name udaproject-frontend-<<parameters.Workflow_ID>>
-            #aws cloudformation delete-stack --stack-name udaproject-frontend-<<parameters.Workflow_ID>>
+            aws cloudformation delete-stack --stack-name UdaPeople-backend-<<parameters.Workflow_ID>>
+            aws cloudformation delete-stack --stack-name UdaPeople-frontend-<<parameters.Workflow_ID>>
+            #aws cloudformation delete-stack --stack-name UdaPeople-frontend-<<parameters.Workflow_ID>>
             #exit 1
 
   #revert-migrations:
@@ -149,8 +149,8 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags project=udaproject-backend-${CIRCLE_WORKFLOW_ID:0:7} \
-              --stack-name "udaproject-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=UdaPeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --stack-name "UdaPeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
               #exit 1
       - run:
@@ -158,15 +158,15 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=udaproject-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
-              --stack-name "udaproject-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=UdaPeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --stack-name "UdaPeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
               #exit 1
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             aws cloudformation describe-stacks \
-            --stack-name "udaproject-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --stack-name "UdaPeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query "Stacks[0].Outputs[0].OutputValue" \
             --output text >> .circleci/ansible/inventory.txt
             #exit 1
