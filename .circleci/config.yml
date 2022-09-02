@@ -190,6 +190,9 @@ jobs:
             --stack-name "UdaPeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query "Stacks[0].Outputs[0].OutputValue" \
             --output text >> .circleci/ansible/inventory.txt
+
+            cat ~/project/.circleci/ansible/inventory.txt
+            
             #exit 1
       - persist_to_workspace:
           root: ~/
@@ -226,6 +229,8 @@ jobs:
          command: |
             cd .circleci/ansible
             cat inventory.txt
+            export ANSIBLE_HOST_KEY_CHECKING=False
+
             ansible-playbook -i inventory.txt configure-server.yml
           #  exit 1
       # - destroy-environment:
