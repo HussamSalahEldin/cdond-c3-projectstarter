@@ -210,6 +210,12 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
           name: Install Ansible
           command: |
             apk add --no-cache --virtual build-dependencies python3-dev libffi-dev openssl-dev build-base
@@ -219,7 +225,9 @@ jobs:
       - run:
          name: Configure server
          command: |
-           ansible-playbook -i .\.circleci\ansible\inventory.txt .\.circleci\ansible\configure-server.yml
+            cd .circleci\ansible
+            cat inventory
+            ansible-playbook -i inventory.txt configure-server.yml
           #  exit 1
       - destroy-environment:
           Workflow_ID: '${CIRCLE_WORKFLOW_ID:0:7}'     
