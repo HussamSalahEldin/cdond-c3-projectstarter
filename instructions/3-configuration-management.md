@@ -47,7 +47,7 @@ _NOTE:_ Some AWS-related jobs may take awhile to complete. If a job takes too lo
 
 #### 1. Infrastructure Phase
 
-Setting up servers and infrastructure is complicated business. There are many, many moving parts and points of failure. The opportunity for failure is massive when all that infrastructure is handled manually by human beings. Let’s face it. We’re pretty horrible at consistency. That’s why UdaPeople adopted the IaC (“Infrastructure as Code”) philosophy after “Developer Dave” got back from the last DevOps conference. We’ll need a job that executes some CloudFormation templates so that the UdaPeople team never has to worry about a missed deployment checklist item.
+Setting up servers and infrastructure is complicated business. There are many, many moving parts and points of failure. The opportunity for failure is massive when all that infrastructure is handled manually by human beings. Let’s face it. We’re pretty horrible at consistency. That’s why udapeople adopted the IaC (“Infrastructure as Code”) philosophy after “Developer Dave” got back from the last DevOps conference. We’ll need a job that executes some CloudFormation templates so that the udapeople team never has to worry about a missed deployment checklist item.
 
 In this phase, you will add CircleCI jobs that execute Cloud Formation templates that create infrastructure as well as jobs that execute Ansible Playbooks to configure that newly created infrastructure.
 
@@ -101,7 +101,7 @@ In this phase, you will add CircleCI jobs that execute Cloud Formation templates
 
 #### 2. Deploy Phase
 
-Now that the infrastructure is up and running, it’s time to configure for dependencies and move our application files over. UdaPeople used to have this ops guy in the other building to make the copy every Friday, but now they want to make a full deploy on every single commit. Luckily for UdaPeople, you’re about to add a job that handles this automatically using Ansible. The ops guy will finally have enough time to catch up on his Netflix playlist.
+Now that the infrastructure is up and running, it’s time to configure for dependencies and move our application files over. udapeople used to have this ops guy in the other building to make the copy every Friday, but now they want to make a full deploy on every single commit. Luckily for udapeople, you’re about to add a job that handles this automatically using Ansible. The ops guy will finally have enough time to catch up on his Netflix playlist.
 
 ##### Database migrations
 
@@ -137,7 +137,7 @@ Now that the infrastructure is up and running, it’s time to configure for depe
 
 #### 3. Smoke Test Phase
 
-All this automated deployment stuff is great, but what if there’s something we didn’t plan for that made it through to production? What if the UdaPeople website is now down due to a runtime bug that our unit tests didn’t catch? Users won’t be able to access their data! This same situation can happen with manual deployments, too. In a manual deployment situation, what’s the first thing you do after you finish deploying? You do a “smoke test” by going to the site and making sure you can still log in or navigate around. You might do a quick `curl` on the backend to make sure it is responding. In an automated scenario, you can do the same thing through code. Let’s add a job to provide the UdaPeople team with a little sanity check.
+All this automated deployment stuff is great, but what if there’s something we didn’t plan for that made it through to production? What if the udapeople website is now down due to a runtime bug that our unit tests didn’t catch? Users won’t be able to access their data! This same situation can happen with manual deployments, too. In a manual deployment situation, what’s the first thing you do after you finish deploying? You do a “smoke test” by going to the site and making sure you can still log in or navigate around. You might do a quick `curl` on the backend to make sure it is responding. In an automated scenario, you can do the same thing through code. Let’s add a job to provide the udapeople team with a little sanity check.
 
 - Find the job named `smoke-test` in your config file.
   - Select a lightweight Docker image like one of the Alpine images.
@@ -166,7 +166,7 @@ All this automated deployment stuff is great, but what if there’s something we
 
 #### 4. Rollback Phase
 
-Of course, we all hope every pipeline follows the “happy path.” But any experienced UdaPeople developer knows that it’s not always the case. If the smoke test fails, what should we do? The smart thing would be to hit CTRL-Z and undo all our changes. But is it really that easy? It will be once you build the next job!
+Of course, we all hope every pipeline follows the “happy path.” But any experienced udapeople developer knows that it’s not always the case. If the smoke test fails, what should we do? The smart thing would be to hit CTRL-Z and undo all our changes. But is it really that easy? It will be once you build the next job!
 
 - At the top of your config file, create a “[command](https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands)” named `destroy-environment` to remove infrastructure if something goes wrong
   - Trigger rollback jobs if the smoke tests or any following jobs fail. 
@@ -184,7 +184,7 @@ Of course, we all hope every pipeline follows the “happy path.” But any expe
 
 #### 5. Promotion Phase
 
-Assuming the smoke test came back clean, we should have a relatively high level of confidence that our deployment was a 99% success. Now’s time for the last 1%. UdaPeople uses the “Blue-Green Deployment Strategy” which means we deployed a second environment or stack next to our existing production stack. Now that we’re sure everything is "A-okay", we can switch from blue to green. 
+Assuming the smoke test came back clean, we should have a relatively high level of confidence that our deployment was a 99% success. Now’s time for the last 1%. udapeople uses the “Blue-Green Deployment Strategy” which means we deployed a second environment or stack next to our existing production stack. Now that we’re sure everything is "A-okay", we can switch from blue to green. 
 
 - Find the job named `cloudfront-update` in your config file.
   - Select a docker image that is compatible with AWS CLI.
@@ -200,7 +200,7 @@ Assuming the smoke test came back clean, we should have a relatively high level 
 
 #### 6. Cleanup Phase
 
-The UdaPeople finance department likes it when your AWS bills are more or less the same as last month OR trending downward. But, what if all this “Blue-Green” is leaving behind a trail of dead-end production environments? That upward trend probably means no Christmas bonus for the dev team. Let’s make sure everyone at UdaPeople has a Merry Christmas by adding a job to clean up old stacks.
+The udapeople finance department likes it when your AWS bills are more or less the same as last month OR trending downward. But, what if all this “Blue-Green” is leaving behind a trail of dead-end production environments? That upward trend probably means no Christmas bonus for the dev team. Let’s make sure everyone at udapeople has a Merry Christmas by adding a job to clean up old stacks.
 
 - Find the job named `cleanup` in your config file.
   - Write code that deletes the previous S3 bucket and EC2 instance. 
