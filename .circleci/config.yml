@@ -3,7 +3,6 @@ version: 2.1
 orbs: 
   slack: circleci/slack@4.10.1
 
-
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -18,8 +17,7 @@ commands:
           command: |
             aws cloudformation delete-stack --stack-name UdaPeople-backend-<<parameters.Workflow_ID>>
             aws cloudformation delete-stack --stack-name UdaPeople-frontend-<<parameters.Workflow_ID>>
-            aws s3 rm "s3://UdaPeople-<< parameters.Workflow_ID >>" --recursive
-
+            aws s3 rm "s3://UdaPeople-<<parameters.Workflow_ID>>" --recursive
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -27,8 +25,8 @@ commands:
       Workflow_ID:
         type: string
         default: ${CIRCLE_WORKFLOW_ID:0:7}
-   steps:
-     - run:
+    steps:
+      - run:
           name: Revert migrations
           when: on_fail
           command: |
