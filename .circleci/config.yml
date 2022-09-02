@@ -15,8 +15,8 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.Workflow_ID>>
-            aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.Workflow_ID>>
+            aws cloudformation delete-stack --stack-name UdaPeople-backend-<<parameters.Workflow_ID>>
+            aws cloudformation delete-stack --stack-name UdaPeople-frontend-<<parameters.Workflow_ID>>
             aws s3 rm "s3://udapeople-<<parameters.Workflow_ID>>" --recursive
 
   revert-migrations:
@@ -148,17 +148,17 @@ jobs:
           command: |
             aws cloudformation deploy \
             --template-file .circleci/files/backend.yml \
-            --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --stack-name UdaPeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
             --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-            --tags project=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            --tags project=UdaPeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
             --template-file .circleci/files/frontend.yml \
-            --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --stack-name UdaPeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
             --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-            --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            --tags project=UdaPeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -273,7 +273,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-             BACKEND_IP=$(aws cloudformation describe-stacks --stack-name udapeople-backend-"${CIRCLE_WORKFLOW_ID:0:7}" --query "Stacks[0].Outputs[0].OutputValue" --output text)
+             BACKEND_IP=$(aws cloudformation describe-stacks --stack-name UdaPeople-backend-"${CIRCLE_WORKFLOW_ID:0:7}" --query "Stacks[0].Outputs[0].OutputValue" --output text)
              API_URL="http://${BACKEND_IP}:3030"
              echo "API_URL=${API_URL}" >> frontend/.env
       - run:
@@ -416,7 +416,7 @@ jobs:
             --template-file .circleci/files/cloudfront.yml \
             --stack-name InitialStack \
             --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-            --tags project=udapeople
+            --tags project=UdaPeople
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
