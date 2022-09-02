@@ -199,10 +199,10 @@ jobs:
           Workflow_ID: '${CIRCLE_WORKFLOW_ID:0:7}'  
       # Here's where you will add some code to rollback on failure      
 
- configure-infrastructure:
-   docker:
+  configure-infrastructure:
+    docker:
       - image: python:3.7-alpine3.11
-   steps:
+    steps:
       # - install_awscli
       # - install_ansible
       - add_ssh_keys:
