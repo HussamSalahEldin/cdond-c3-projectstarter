@@ -21,6 +21,27 @@ commands:
             #aws cloudformation delete-stack --stack-name UdaPeople-frontend-<<parameters.Workflow_ID>>
             #exit 1
 
+  install_awscli:
+    description: Install AWS CLI v2
+    steps:
+      - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+  install_ansible:
+    description: Install Ansible
+    steps:
+      - run:
+          name: Install Ansible
+          command: |
+            sudo apt update
+            sudo apt install software-properties-common -y
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible -y
+
+
   #revert-migrations:
   #  description: Revert the last migration if successfully run in the current workflow.
   #  parameters:
@@ -178,24 +199,30 @@ jobs:
           Workflow_ID: '${CIRCLE_WORKFLOW_ID:0:7}'  
       # Here's where you will add some code to rollback on failure      
 
-#  configure-infrastructure:
-#    docker:
-#      # Docker image here that supports Ansible
-#    steps:
-#      # Checkout code from git
-#      # Add ssh keys with fingerprint
-#      # attach workspace
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # Your code here
-#            exit 1
-#      - run:
-#          name: Configure server
-#          command: |
-#            # Your code here
-#            exit 1
-#      # Here's where you will add some code to rollback on failure      
+ configure-infrastructure:
+   docker:
+      - image: python:3.7-alpine3.11
+   steps:
+      # - install_awscli
+      # - install_ansible
+      - add_ssh_keys:
+          fingerprints: ["4c:99:15:d3:eb:ac:a1:cb:1b:5d:ed:a9:e2:16:84:b9"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install Ansible
+          command: |
+            apk add --no-cache --virtual build-dependencies python3-dev libffi-dev openssl-dev build-base
+            pip3 install --upgrade pip
+            pip3 install ansible
+            apk add openssh-client
+      - run:
+         name: Configure server
+         command: |
+           ansible-playbook -i .\.circleci\ansible\inventory.txt .\.circleci\ansible\configure-server.yml
+          #  exit 1
+      - destroy-environment:
+          Workflow_ID: '${CIRCLE_WORKFLOW_ID:0:7}'     
 
 #  run-migrations:
 #    docker:
@@ -328,8 +355,8 @@ workflows:
           #filters:
           #  branches:
           #    only: [test-feature-branch]
-      #- configure-infrastructure:
-      #    requires: [deploy-infrastructure]
+      - configure-infrastructure:
+         requires: [deploy-infrastructure]
       #- run-migrations:
       #    requires: [configure-infrastructure]
       #- deploy-frontend:
