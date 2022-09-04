@@ -16,7 +16,7 @@ Please watch the [video walkthrough of preparing AWS here](https://www.youtube.c
 At the very end of the pipeline, you will need to make a switch from the old infrastructure to the new as you learned about with the Blue Green Deployment strategy. We will use CloudFormation and CloudFront to accomplish this. However, for this to work, you must do a few things manually:
 
 1) Create a random string (e.g. `kk1j287dhjppmz437`) for use in next steps.
-2) Create an S3 Bucket with a name that combines "udapeople" and the random string (e.g. "udapeople-kk1j287dhjppmz437"). If S3 complains that the name is already taken, just choose another random string. The random string is to distinguish your bucket from other student buckets.
+2) Create an S3 Bucket with a name that combines "UdaPeople" and the random string (e.g. "UdaPeople-kk1j287dhjppmz437"). If S3 complains that the name is already taken, just choose another random string. The random string is to distinguish your bucket from other student buckets.
 3) Run our provided [Cloud Formation](https://github.com/udacity/cdond-c3-projectstarter/blob/master/.circleci/files/cloudfront.yml) template locally (for the Workflow ID parameter, use your random string).
 
 Once that is done, subsequent executions of that template will modify the same CloudFront distribution to make the blue-to-green switch without fail.
@@ -148,7 +148,7 @@ All this automated deployment stuff is great, but what if there’s something we
       - Use `curl` to hit the back-end API's status endpoint (e.g. https://1.2.3.4:3000/api/status)
       - No errors mean a successful test
     - Test the front-end
-      - Form the front-end url using the workflow id and your AWS region like this: `URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"` 
+      - Form the front-end url using the workflow id and your AWS region like this: `URL="http://UdaPeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"` 
       - Check the front-end to make sure it includes a word or two that proves it is working properly.
       - No errors mean a successful test
       ```bash
@@ -213,8 +213,8 @@ The UdaPeople finance department likes it when your AWS bills are more or less t
           --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
     ```
     - Remove old stacks/files
-      - Back-end stack (example: `aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"`)
-      - Front-end files in S3 (example: `aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive`)
+      - Back-end stack (example: `aws cloudformation delete-stack --stack-name "UdaPeople-backend-${OldWorkflowID}"`)
+      - Front-end files in S3 (example: `aws s3 rm "s3://UdaPeople-${OldWorkflowID}" --recursive`)
       - Front-end stack
 - Provide a screenshot of the successful job. **[SCREENSHOT09]**
 
