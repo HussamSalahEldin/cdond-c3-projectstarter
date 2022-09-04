@@ -333,7 +333,9 @@ jobs:
             npm run build
             tar -czf artifact.tar.gz dist/* package*
             cd ..
+            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
             cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+            cp backend/artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
       - run:
           name: Deploy backend
           command: |
@@ -445,25 +447,6 @@ jobs:
             fi
             fi
 
-#cleanup:
-#    docker:
-#      # Docker image here
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Get old stack workflow id
-#          command: |
-#            # your code here
-#            export OldWorkflowID="the id here"
-#            export STACKS=[] #put the list of stacks here
-#      - run:
-#          name: Remove old stacks and files
-#          command: |
-#            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#            then
-#              # your code here
-#            fi
-            
 
 workflows:
   default:
@@ -480,9 +463,9 @@ workflows:
           requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          #filters:
-          #  branches:
-          #    only: [test-feature-branch]
+          filters:
+            branches:
+              only: [master]
       - configure-infrastructure:
          requires: [deploy-infrastructure]
       - run-migrations:
