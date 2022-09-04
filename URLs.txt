@@ -1,1 +1,4 @@
-https://github.com/HussamSalahEldin/cdond-c3-projectstarter
+GITHUB REPO:	https://github.com/HussamSalahEldin/cdond-c3-projectstarter
+
+BUCKET:			s3://udapeople-804cedb/index.html
+
