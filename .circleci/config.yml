@@ -365,15 +365,16 @@ jobs:
       - run:
           name: Backend smoke test
           command: |
-            BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
-            API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-            if curl "${API_URL}/api/status" | grep "ok"
+            export BACKEND_PUBLIC_IP=$(aws --region us-west-2 ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicDnsName' --output text)
+            export API_URL="http://${BACKEND_PUBLIC_IP}:3030"
+            echo "${API_URL}/api/status"  #   curl -s ${API_URL}/api/status -v 
+            if curl -s ${API_URL}/api/status | grep "ok"
             then
-                return 0
+              exit 0
             else
-                return 1
-            fi
+              exit 1
+            fi       
+
       - run:
           name: Smoke test for front end
           command: |
