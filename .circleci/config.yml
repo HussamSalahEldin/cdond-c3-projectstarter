@@ -373,7 +373,7 @@ jobs:
               exit 0
             else
               exit 1
-            fi       
+            fi
 
       - run:
           name: Smoke test for front end
