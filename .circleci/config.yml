@@ -367,7 +367,7 @@ jobs:
           command: |
             export BACKEND_PUBLIC_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicDnsName' --output text)
             export API_URL="http://${BACKEND_PUBLIC_IP}:9100"
-            echo curl -s ${API_URL}/api/status -v  #   curl -s ${API_URL}/api/status -v 
+            echo curl -s ${API_URL}/api/status -v
             if curl -s ${API_URL}/api/status | grep "ok"
             then
               exit 0
@@ -386,10 +386,10 @@ jobs:
             else
               exit 1
             fi         
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      #- destroy-environment:
+      #    Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      #- revert-migrations:
+      #    Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cloudfront-update:
     docker:
@@ -420,10 +420,10 @@ jobs:
             --stack-name InitialStack \
             --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
             --tags project=UdaPeople
-      #- destroy-environment:
-      #    Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      #- revert-migrations:
-      #    Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cleanup:
     docker:
@@ -475,9 +475,9 @@ workflows:
          requires: [run-migrations]
       - deploy-backend:
          requires: [run-migrations]
-      #- smoke-test:
-      #   requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+         requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
-         requires: [deploy-backend]
+         requires: [deploy-backend, deploy-frontend, smoke-test]
       #- cleanup:
       #    requires: [cloudfront-update]
