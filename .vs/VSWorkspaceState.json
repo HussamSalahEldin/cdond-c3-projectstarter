@@ -1,7 +1,16 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\backend",
+    "\\backend\\src",
+    "\\backend\\src\\modules",
+    "\\backend\\src\\modules\\config",
+    "\\backend\\src\\modules\\domain",
+    "\\backend\\src\\modules\\domain\\employees",
+    "\\backend\\src\\modules\\domain\\employees\\commands",
+    "\\backend\\src\\modules\\domain\\employees\\commands\\handlers",
+    "\\screenshots"
   ],
-  "SelectedNode": "\\C:\\Users\\staff\\Source\\Repos\\cdond-c3-projectstarter",
+  "SelectedNode": "\\backend\\src\\modules\\domain\\employees\\commands\\handlers\\employee-activator.handler.spec.ts",
   "PreviewInSolutionExplorer": false
 }
