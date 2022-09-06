@@ -274,7 +274,7 @@ jobs:
           name: Get backend url
           command: |
              BACKEND_IP=$(aws cloudformation describe-stacks --stack-name udapeople-backend-"${CIRCLE_WORKFLOW_ID:0:7}" --query "Stacks[0].Outputs[0].OutputValue" --output text)
-             API_URL="http://${BACKEND_IP}:3030"
+             API_URL="http://${BACKEND_IP}:9100"
              echo "API_URL=${API_URL}" >> frontend/.env
       - run:
           name: Deploy frontend objects
@@ -365,7 +365,8 @@ jobs:
       - run:
           name: Backend smoke test
           command: |
-            export API_URL="http://${BACKEND_IP}:3030"
+            export BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicDnsName' --output text)
+            export API_URL="http://${BACKEND_IP}:9100"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
