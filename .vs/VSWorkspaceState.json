@@ -1,16 +1,17 @@
 {
   "ExpandedNodes": [
     "",
+    "\\.circleci",
+    "\\.circleci\\ansible",
+    "\\.circleci\\ansible\\roles",
+    "\\.circleci\\ansible\\roles\\configure-server",
+    "\\.circleci\\ansible\\roles\\configure-server\\tasks",
     "\\backend",
     "\\backend\\src",
     "\\backend\\src\\modules",
     "\\backend\\src\\modules\\config",
-    "\\backend\\src\\modules\\domain",
-    "\\backend\\src\\modules\\domain\\employees",
-    "\\backend\\src\\modules\\domain\\employees\\commands",
-    "\\backend\\src\\modules\\domain\\employees\\commands\\handlers",
-    "\\screenshots"
+    "\\backend\\src\\modules\\domain"
   ],
-  "SelectedNode": "\\backend\\src\\modules\\domain\\employees\\commands\\handlers\\employee-activator.handler.spec.ts",
+  "SelectedNode": "\\backend",
   "PreviewInSolutionExplorer": false
 }
