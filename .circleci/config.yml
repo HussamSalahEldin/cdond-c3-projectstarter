@@ -275,7 +275,9 @@ jobs:
           command: |
              BACKEND_IP=$(aws cloudformation describe-stacks --stack-name udapeople-backend-"${CIRCLE_WORKFLOW_ID:0:7}" --query "Stacks[0].Outputs[0].OutputValue" --output text)
              API_URL="http://${BACKEND_IP}:3030"
+             echo "API_URL=${API_URL}"
              echo "API_URL=${API_URL}" >> frontend/.env
+             cat frontend/.env
       - run:
           name: Deploy frontend objects
           working_directory: ./frontend
@@ -413,6 +415,8 @@ jobs:
           name: get old workflow for clean
           command: |
             OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
+            curl "https://kvdb.io/FpyqzBbD5rrhfYadEvNQYC/migration_${CIRCLE_WORKFLOW_ID:0:7}"
+            curl https://kvdb.io/FpyqzBbD5rrhfYadEvNQYC/migration_${CIRCLE_WORKFLOW_ID:0:7}
             curl https://kvdb.io/FpyqzBbD5rrhfYadEvNQYC/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "$OldWorkflowID"  
       - run:
           name: Updating cloudfront distribution
