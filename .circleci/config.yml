@@ -227,15 +227,25 @@ jobs:
 
   run-migrations:
     docker:
-      - image: sleavely/node-awscli:14.x
+      - image: circleci/node:13.8.0
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install AWS Cli
+          command: |
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Run migrations
+          working_directory: ./backend/
           command: |
             cd backend
             cat .env
-            npm i
+            npm install
             npm run build
             npm run migrations > migration_status.txt
             echo "------------ migration status -------------"
@@ -307,14 +317,18 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: cimg/base:stable
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - run:
-          name: Installing necessary packages
-          command: |
-            sudo apt update
-            sudo apt install -y tar gzip curl software-properties-common
+      - add_ssh_keys:
+          fingerprints: ["4c:99:15:d3:eb:ac:a1:cb:1b:5d:ed:a9:e2:16:84:b9"]
+      - attach_workspace:
+          at: ~/
+      #- run:
+      #    name: Installing necessary packages
+      #    command: |
+      #      sudo apt update
+      #      sudo apt install -y tar gzip curl software-properties-common
       - run:
           name: Installing aws-cli
           command: |
@@ -331,10 +345,7 @@ jobs:
           command: |
             curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
             sudo apt install -y nodejs
-      - add_ssh_keys:
-          fingerprints: ["4c:99:15:d3:eb:ac:a1:cb:1b:5d:ed:a9:e2:16:84:b9"]
-      - attach_workspace:
-          at: ~/
+
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -343,36 +354,43 @@ jobs:
             cd backend
             npm install
       - run:
-          name: Package Backend
-          command: |
-            cd backend
-            touch .env
-            echo "TYPEORM_HOST=${TYPEORM_HOST}"  >> .env
-            echo "TYPEORM_PORT=${TYPEORM_PORT}" >> .env
-            echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> .env
-            echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> .env
-            echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> .env
-            echo "TYPEORM_CONNECTION=postgres" >> .env
-            echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
-            echo "TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts" >> .env
-            echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
-            cat .env
-
-            npm run build
-            tar -czf artifact.tar.gz dist/* package*
-            cd ..
-            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
-            cp backend/artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
-      - run:
           name: Deploy backend
+          no_output_timeout: 10m
           command: |
-            #export TYPEORM_MIGRATIONS_DIR=./migrations
-            #export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-            #export TYPEORM_MIGRATIONS=./migrations/*.ts
-            cd .circleci/ansible
-            cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            cd . 
+            tar -czvf backend.tar.gz ./backend
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+      #- run:
+      #    name: Package Backend
+      #    command: |
+      #      cd backend
+      #      touch .env
+      #      echo "TYPEORM_HOST=${TYPEORM_HOST}"  >> .env
+      #      echo "TYPEORM_PORT=${TYPEORM_PORT}" >> .env
+      #      echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> .env
+      #      echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> .env
+      #      echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> .env
+      #      echo "TYPEORM_CONNECTION=postgres" >> .env
+      #      echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
+      #      echo "TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts" >> .env
+      #      echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
+      #      cat .env
+
+      #      npm run build
+      #      tar -czf artifact.tar.gz dist/* package*
+      #      cd ..
+      #      mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
+      #      cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+      #      cp backend/artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
+      #- run:
+      #    name: Deploy backend
+      #    command: |
+      #      #export TYPEORM_MIGRATIONS_DIR=./migrations
+      #      #export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+      #      #export TYPEORM_MIGRATIONS=./migrations/*.ts
+      #      cd .circleci/ansible
+      #      cat inventory.txt
+      #      ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
