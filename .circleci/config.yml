@@ -292,7 +292,7 @@ jobs:
           working_directory: ./frontend
           command: |
             npm i
-            npm run build
+            npm run build:prod
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       - destroy-environment:
