@@ -11,14 +11,20 @@
 - name: "Installing Node Dependencies"
   shell: |
     cd ~/backend-app
-    npm i
+    sudo npm install
+
+- name: "run migrations"
+  shell: |
+    cd ~/backend-app
+    sudo npm run migrations
 
 - name: "Executing Node app with PM2"
   shell: |
-    cd ~/backend-app/dist
-    pm2 stop default
-    pm2 start npm -- start
-    pm2 ls
+    cd ~/backend-app
+    pm2 start npm --name backend -- start
+    #pm2 stop default
+    #pm2 start npm -- start
+    #pm2 ls
   register: execute_node
 
 - name: print message
