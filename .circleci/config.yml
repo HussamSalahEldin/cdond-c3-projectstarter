@@ -384,14 +384,14 @@ jobs:
       - run:
           name: Package Backend
           command: |
-                cd backend
-                npm run build
-                tar -czf artifact.tar.gz dist/* package*
-                cd ..
-                cp backend/artifact.tar.gz ~/.circleci/ansible/roles/deploy/files
-                cp backend/artifact.tar.gz .
-                echo "============== listing files in .circleci/ansible/roles/deploy/files =============="
-                ls ~/.circleci/ansible/roles/deploy/files
+              cd backend
+              npm install
+              npm run build
+              cd ..
+              tar -C backend -czvf artifact.tar.gz .
+              cat ~/project/.circleci/ansible/inventory.txt
+              ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/deploy-backend.yml
+
       - run:
             name: Deploy backend
             command: |
