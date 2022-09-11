@@ -15,9 +15,9 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
+            aws s3 rm "s3://udapeople-<<parameters.Workflow_ID>>" --recursive
             aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.Workflow_ID>>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.Workflow_ID>>
-            aws s3 rm "s3://udapeople-<<parameters.Workflow_ID>>" --recursive
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -30,6 +30,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
+            sudo dpkg-reconfigure ca-certificates
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS=$(curl "https://kvdb.io/FpyqzBbD5rrhfYadEvNQYC/migration_<<parameters.Workflow_ID>>")
             if(( $SUCCESS==1 )); 
@@ -232,6 +233,7 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            sudo dpkg-reconfigure ca-certificates
             cat backend/.env
             cd backend
             npm install
@@ -241,6 +243,7 @@ jobs:
           name: Send migration results to kvdb
           working_directory: ./backend/
           command: |
+            sudo dpkg-reconfigure ca-certificates
             cat migration_output.txt
             if grep -q "has been executed successfully" migration_output.txt
             then 
