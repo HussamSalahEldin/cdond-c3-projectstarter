@@ -256,49 +256,37 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: cimg/node:13.14.0
+      - image: amazon/aws-cli
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - build-frontend
       - run:
-          name: Installing necessary packages
+          name: Install dependencies
           command: |
-            sudo apt update
-            sudo apt install -y tar gzip curl software-properties-common
-      - run:
-          name: Installing aws-cli
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - run:
-          name: Installing ansible
-          command: |
-            sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible
+            yum install tar -y
+            yum install gzip -y
+            yum install python3-pip -y
+            yum -y install curl -y
+            curl --silent --location https://rpm.nodesource.com/setup_14.x | bash -
+            yum install -y nodejs
       - run:
           name: Get backend url
           command: |
-             #BACKEND_IP=$(aws cloudformation describe-stacks --stack-name udapeople-backend-"${CIRCLE_WORKFLOW_ID:0:7}" --query "Stacks[0].Outputs[0].OutputValue" --output text)
-             BACKEND_IP=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters Name=tag:Name,Values=backend-"${CIRCLE_WORKFLOW_ID:0:7}" --output text)
-             API_URL="https://${BACKEND_IP}:3030"
-             echo "API_URL=${API_URL}"
-             echo "API_URL=${API_URL}" >> frontend/.env
-             cat frontend/.env
+            export BACKEND_IP=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters Name=tag:Name,Values=backend-"${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            cd frontend
+            npm install
+            npm run build
       - run:
           name: Deploy frontend objects
-          working_directory: ./frontend
           command: |
-            npm i
-            npm run build:prod
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            cd frontend
+            aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID}" --recursive
       - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: ${CIRCLE_WORKFLOW_ID}   
+
 
 
   deploy-backend:
@@ -399,9 +387,12 @@ jobs:
           command: |
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
-            --stack-name InitialStack  \
+            --stack-name Initial-Stack  \
             --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
             --tags project=udapeople
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
