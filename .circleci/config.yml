@@ -30,7 +30,6 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            sudo dpkg-reconfigure ca-certificates
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS=$(curl "https://kvdb.io/FpyqzBbD5rrhfYadEvNQYC/migration_<<parameters.Workflow_ID>>")
             if(( $SUCCESS==1 )); 
