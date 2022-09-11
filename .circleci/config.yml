@@ -241,6 +241,7 @@ jobs:
           name: Send migration results to kvdb
           working_directory: ./backend/
           command: |
+            cat migration_output.txt
             if grep -q "has been executed successfully" migration_output.txt
             then 
               echo "has been done successfully"
