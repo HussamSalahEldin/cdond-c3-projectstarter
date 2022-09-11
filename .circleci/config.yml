@@ -169,7 +169,7 @@ jobs:
             cd frontend
             npm install
             npm audit fix --audit-level=critical --force
-            # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
+            # If the "npm audit fix" command above could not fix all critical vulnerabilities, try ï¿½npm audit fix --forceï¿½ again
             npm audit --audit-level=critical
             # npm install
             # npm audit fix --force --audit-level=critical
@@ -387,9 +387,10 @@ jobs:
                 cd backend
                 npm run build
                 tar -czf artifact.tar.gz dist/* package*
-
                 cd ..
                 cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+                echo "============== listing files in .circleci/ansible/roles/deploy/files =============="
+                ls .circleci/ansible/roles/deploy/files
       - run:
             name: Deploy backend
             command: |
@@ -471,7 +472,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --stack-name Initial-Stack
+              --stack-name InitialStack
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
