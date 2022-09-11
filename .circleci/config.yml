@@ -376,23 +376,12 @@ jobs:
             echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
             cat .env
       - run:
-          name: Deploy Our backend
+          name: Deploy backend
+          no_output_timeout: 10m
           command: |
-            cd backend
-            npm i
-            npm run build
-            # tar -czf artifact.tar.gz .
-            cd ..
-            # enter backend directory and Zip the directory
-            tar -C backend -czf artifact.tar.gz .
-            cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
-            # ls ~/project/.circleci/ansible/roles/deploy/files/
-            echo "Present working directory is -------"
-            cd .circleci/ansible
-            echo "Contents  of the inventory.txt file is -------"
-            cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
-          no_output_timeout: 30m
+            cd . 
+            tar -czvf backend.tar.gz ./backend
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
@@ -463,7 +452,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --stack-name Initial-Stack
+              --stack-name InitialStack
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
