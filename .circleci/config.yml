@@ -392,14 +392,14 @@ jobs:
             # echo "[web]" > ~/inventory.txt
             # echo "54.197.202.249" >> ~/inventory.txt
             echo "--------------------inventory data----------------------"
-            cat ~/inventory.txt
+            cat project/.circleci/ansible/inventory.txt
             cd backend
             npm install
             npm run build
             cd ../
             tar -czvf backend.tar.gz backend
             ls /root/project
-            ansible-playbook -i ~/inventory.txt .circleci/ansible/deploy-backend.yml
+            ansible-playbook -i project/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
 
   smoke-test:
     docker:
