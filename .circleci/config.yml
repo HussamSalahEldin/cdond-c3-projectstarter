@@ -326,49 +326,80 @@ jobs:
       - revert-migrations:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
+  #deploy-backend:
+  #  docker:
+  #    - image: cimg/base:stable
+  #  steps:
+  #    - checkout
+  #    - install_awscli
+  #    - install_ansible
+  #    - install_nodejs
+  #    - add_ssh_keys:
+  #        fingerprints: ["4c:99:15:d3:eb:ac:a1:cb:1b:5d:ed:a9:e2:16:84:b9"]
+  #    - attach_workspace:
+  #        at: ~/
+  #    - restore_cache:
+  #        keys: [backend-build]
+  #    - run:
+  #        name: Install dependencies
+  #        command: |
+  #          cd backend
+  #          npm install
+  #    - run:
+  #        name: Package Backend
+  #        command: |
+  #          cd backend
+  #          npm run build
+  #          tar -czf artifact.tar.gz dist/* package*
+  #          cd ..
+  #          cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+
+  #    - run:
+  #        name: Deploy backend
+  #        command: |
+  #          export TYPEORM_MIGRATIONS_DIR=./migrations
+  #          export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+  #          export TYPEORM_MIGRATIONS=./migrations/*.ts
+
+  #          cd .circleci/ansible
+  #          cat inventory.txt
+  #          ansible-playbook -i inventory.txt deploy-backend.yml
+
+  #    - destroy-environment:
+  #        Workflow_ID: ${CIRCLE_WORKFLOW_ID}
+  #    - revert-migrations:
+  #        Workflow_ID: ${CIRCLE_WORKFLOW_ID}      
+
   deploy-backend:
     docker:
-      - image: cimg/base:stable
+      # Docker image here that supports Ansible
+      - image: 18120211/node-aws-ansible-22.04
     steps:
+      # Checkout code from git
       - checkout
-      - install_awscli
-      - install_ansible
-      - install_nodejs
+      # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["4c:99:15:d3:eb:ac:a1:cb:1b:5d:ed:a9:e2:16:84:b9"]
+      # attach workspace
       - attach_workspace:
           at: ~/
+      # Restore cache backend build
       - restore_cache:
           keys: [backend-build]
       - run:
-          name: Install dependencies
-          command: |
-            cd backend
-            npm install
-      - run:
-          name: Package Backend
-          command: |
-            cd backend
-            npm run build
-            tar -czf artifact.tar.gz dist/* package*
-            cd ..
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
-
-      - run:
           name: Deploy backend
           command: |
-            export TYPEORM_MIGRATIONS_DIR=./migrations
-            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-            export TYPEORM_MIGRATIONS=./migrations/*.ts
-
-            cd .circleci/ansible
-            cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
-
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID}      
+            # echo "[web]" > ~/inventory.txt
+            # echo "54.197.202.249" >> ~/inventory.txt
+            echo "--------------------inventory data----------------------"
+            cat ~/inventory.txt
+            cd backend
+            npm install
+            npm run build
+            cd ../
+            tar -czvf backend.tar.gz backend
+            ls /root/project
+            ansible-playbook -i ~/inventory.txt .circleci/ansible/deploy-backend.yml
 
   smoke-test:
     docker:
