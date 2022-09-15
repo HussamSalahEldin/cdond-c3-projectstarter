@@ -83,6 +83,12 @@
     cd /home/ubuntu/backend
     pm2 start npm --name backend -- start
 
+  register: execute_node
+
+- name: print message
+  debug:
+    msg: "{{ execute_node.stdout_lines }}"
+
 #- name: "start server"
 #  command: pm2 start main.js --name=backend
 #  args:
