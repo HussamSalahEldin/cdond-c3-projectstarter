@@ -294,32 +294,22 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: cimg/node:13.14.0
+      - image: cimg/base:stable
     steps:
       - checkout
+      - install_awscli
+      - install_nodejs
       - restore_cache:
           keys:
-            - build-frontend
+            - frontend-build
       - run:
-          name: Installing necessary packages
+          name: Installing dependencies
           command: |
-            sudo apt update
-            sudo apt install -y tar gzip curl software-properties-common
-      - run:
-          name: Installing aws-cli
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - run:
-          name: Installing ansible
-          command: |
-            sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible
+            cd frontend
+            npm install
       - run:
           name: Get backend url
           command: |
-             #BACKEND_IP=$(aws cloudformation describe-stacks --stack-name udapeople-backend-"${CIRCLE_WORKFLOW_ID:0:7}" --query "Stacks[0].Outputs[0].OutputValue" --output text)
              BACKEND_IP=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --filters Name=tag:Name,Values=backend-"${CIRCLE_WORKFLOW_ID:0:7}" --output text)
              API_URL="https://${BACKEND_IP}:3030"
              echo "API_URL=${API_URL}"
@@ -329,10 +319,10 @@ jobs:
           name: Deploy frontend objects
           working_directory: ./frontend
           command: |
-            npm i
-            npm run build:prod
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            cd frontend
+            npm run build
             aws s3 cp dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            #tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -340,25 +330,45 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: cimg/base:stable
     steps:
       - checkout
+      - install_awscli
+      - install_ansible
+      - install_nodejs
       - add_ssh_keys:
           fingerprints: ["4c:99:15:d3:eb:ac:a1:cb:1b:5d:ed:a9:e2:16:84:b9"]
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
-            pip install awscli
+            cd backend
+            npm install
+      - run:
+          name: Package Backend
+          command: |
+            cd backend
+            npm install
+            npm run build
+            cd ../
+            tar -czvf artifact.tar.gz backend
+            cp artifact.tar.gz ./circleci/ansible/roles/deploy/files
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+
       - run:
           name: Deploy backend
-          no_output_timeout: 10m
           command: |
-            cd . 
-            tar -czvf backend.tar.gz ./backend
-            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
+
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
@@ -407,7 +417,6 @@ jobs:
       #    Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       #- revert-migrations:
       #    Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-
 
   cloudfront-update:
     docker:
@@ -483,10 +492,10 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      #- deploy-frontend:
-      #    requires: [run-migrations]
-      #- deploy-backend:
-      #    requires: [run-migrations]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
       #- smoke-test:
       #    requires: [deploy-backend, deploy-frontend]
       #- cloudfront-update:
