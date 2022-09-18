@@ -431,6 +431,7 @@ jobs:
             npm run build
             tar -czf artifact.tar.gz dist/* package*
             cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/artifact.tar.gz
+
             cd ../.circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
             
@@ -459,12 +460,12 @@ jobs:
             echo "${API_URL}"
             echo curl "${API_URL}/api/status" -v
             #sleep 30s
-            #if curl "${API_URL}/api/status" | grep "ok"
-            #then
-            #    return 0
-            #else
-            #    return 1
-            #fi
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+               return 0
+            else
+               return 1
+            fi
 
 
       - run:
