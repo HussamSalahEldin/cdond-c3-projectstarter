@@ -28,27 +28,19 @@
     cd /home/ubuntu/backend
     npm i
 
-
-- name: "--------------------log----------------------"
-  command: ls
-  args:
-    chdir: /home/ubuntu/backend/dist
-
-- name: "Exporting environments"
+- name: Start the app
   shell: |
     export TYPEORM_ENTITIES=./backend/dist/modules/domain/**/*.entity{.ts,.js}
-    export TYPEORM_HOST=uda-database.cdaduydnc6bp.us-east-1.rds.amazonaws.com
+    export TYPEORM_HOST=localhost
     export TYPEORM_PORT=5532
     export TYPEORM_USERNAME=postgres
-    export TYPEORM_PASSWORD=mypassword
-    export TYPEORM_DATABASE=postgres
+    export TYPEORM_PASSWORD=password
+    export TYPEORM_DATABASE=glee
     export TYPEORM_MIGRATIONS_DIR=./backend/dist/migrations
     export TYPEORM_MIGRATIONS=./backend/dist/migrations/*.ts
-    
-- name: "start server"
-  command: pm2 start main.js --name=backend
-  args:
-    chdir: /home/ubuntu/backend/dist
+    pm2 stop default
+    pm2 start -f /home/ubuntu/backend/dist/main.js
+
 
   register: execute_node
 
@@ -56,6 +48,23 @@
   debug:
     msg: "{{ execute_node.stdout_lines }}"
 
+#- name: "start server"
+#  command: pm2 start main.js --name=backend
+#  args:
+#    chdir: /home/ubuntu/backend/dist
+
+
+#- name: "Exporting environments"
+#  shell: |
+#    export TYPEORM_ENTITIES=./backend/dist/modules/domain/**/*.entity{.ts,.js}
+#    export TYPEORM_HOST=uda-database.cdaduydnc6bp.us-east-1.rds.amazonaws.com
+#    export TYPEORM_PORT=5532
+#    export TYPEORM_USERNAME=postgres
+#    export TYPEORM_PASSWORD=mypassword
+#    export TYPEORM_DATABASE=postgres
+#    export TYPEORM_MIGRATIONS_DIR=./backend/dist/migrations
+#    export TYPEORM_MIGRATIONS=./backend/dist/migrations/*.ts
+    
 #- name: "start server"
 #  command: pm2 start main.js --name=backend
 #  args:
