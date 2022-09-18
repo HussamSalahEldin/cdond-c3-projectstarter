@@ -397,7 +397,7 @@ jobs:
             npm install
             npm run build
             cd ../
-            tar -czvf backend.tar.gz backend
+            tar -czf backend.tar.gz backend
             ls /root/project
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
 
