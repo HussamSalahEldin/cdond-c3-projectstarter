@@ -81,11 +81,6 @@
   args:
     chdir: /home/ubuntu/backend/dist
 
-- name: Start PM2
-  shell: |
-    cd /home/ubuntu/backend
-    pm2 start npm --name backend -- start
-
   register: execute_node
 
 - name: print message
