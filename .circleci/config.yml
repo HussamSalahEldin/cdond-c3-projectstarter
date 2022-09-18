@@ -389,8 +389,9 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            # echo "[web]" > ~/inventory.txt
-            # echo "54.197.202.249" >> ~/inventory.txt
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
             echo "--------------------inventory data----------------------"
             cat .circleci/ansible/inventory.txt
             cd backend
