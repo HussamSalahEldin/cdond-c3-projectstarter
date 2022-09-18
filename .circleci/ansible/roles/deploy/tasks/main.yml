@@ -1,9 +1,9 @@
 
 #########WORKING#######################
-- name: "Unarchive files and move to ec2"
-  unarchive:
-    src: ~/project/backend.tar.gz
-    dest: /home/ubuntu/
+#- name: "Unarchive files and move to ec2"
+#  unarchive:
+#    src: ~/project/backend.tar.gz
+#    dest: /home/ubuntu/
 #########WORKING#######################
 #########REPLACEMENT#######################
 - name: Create Backend Directory
