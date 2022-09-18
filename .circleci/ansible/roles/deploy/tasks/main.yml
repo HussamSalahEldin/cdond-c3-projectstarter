@@ -70,14 +70,17 @@
 #     chdir: /home/ubuntu/backend
 
 
-- name: "install package"
-  shell: |
-    cd /home/ubuntu/backend
-    sudo npm install
-- name: "run migrations"
-  shell: |
-    cd /home/ubuntu/backend
-    sudo npm run migrations
+
+- name: "--------------------log----------------------"
+  command: ls
+  args:
+    chdir: /home/ubuntu/backend/dist
+
+- name: "start server"
+  command: pm2 start main.js --name=backend
+  args:
+    chdir: /home/ubuntu/backend/dist
+
 - name: Start PM2
   shell: |
     cd /home/ubuntu/backend
