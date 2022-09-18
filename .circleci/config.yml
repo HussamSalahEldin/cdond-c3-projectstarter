@@ -404,9 +404,14 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            export TYPEORM_MIGRATIONS_DIR=./migrations
-            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-            export TYPEORM_MIGRATIONS=./migrations/*.ts
+            export TYPEORM_ENTITIES=./backend/dist/modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_HOST=uda-database.cdaduydnc6bp.us-east-1.rds.amazonaws.com
+            export TYPEORM_PORT=5532
+            export TYPEORM_USERNAME=postgres
+            export TYPEORM_PASSWORD=mypassword
+            export TYPEORM_DATABASE=postgres
+            export TYPEORM_MIGRATIONS_DIR=./backend/dist/migrations
+            export TYPEORM_MIGRATIONS=./backend/dist/migrations/*.ts
             echo "--------------------inventory data----------------------"
             cat .circleci/ansible/inventory.txt
             ##mariemorsi
