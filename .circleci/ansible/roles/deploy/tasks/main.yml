@@ -69,6 +69,10 @@
 #   args:
 #     chdir: /home/ubuntu/backend
 
+- name: "Installing Node Dependencies"
+  shell: |
+    cd /home/ubuntu/backend
+    npm i
 
 
 - name: "--------------------log----------------------"
@@ -76,6 +80,17 @@
   args:
     chdir: /home/ubuntu/backend/dist
 
+- name: "Exporting environments"
+  shell: |
+    export TYPEORM_ENTITIES=./backend/dist/modules/domain/**/*.entity{.ts,.js}
+    export TYPEORM_HOST=uda-database.cdaduydnc6bp.us-east-1.rds.amazonaws.com
+    export TYPEORM_PORT=5532
+    export TYPEORM_USERNAME=postgres
+    export TYPEORM_PASSWORD=mypassword
+    export TYPEORM_DATABASE=postgres
+    export TYPEORM_MIGRATIONS_DIR=./backend/dist/migrations
+    export TYPEORM_MIGRATIONS=./backend/dist/migrations/*.ts
+    
 - name: "start server"
   command: pm2 start main.js --name=backend
   args:
