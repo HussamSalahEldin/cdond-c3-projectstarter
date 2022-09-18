@@ -405,6 +405,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            cd backend
             export TYPEORM_ENTITIES=./backend/dist/modules/domain/**/*.entity{.ts,.js}
             export TYPEORM_HOST=uda-database.cdaduydnc6bp.us-east-1.rds.amazonaws.com
             export TYPEORM_PORT=5532
@@ -413,9 +414,7 @@ jobs:
             export TYPEORM_DATABASE=postgres
             export TYPEORM_MIGRATIONS_DIR=./backend/dist/migrations
             export TYPEORM_MIGRATIONS=./backend/dist/migrations/*.ts
-            echo "--------------------inventory data----------------------"
-            cat .circleci/ansible/inventory.txt
-            cd backend
+
             touch .env
             echo "TYPEORM_HOST=${TYPEORM_HOST}"  >> .env
             echo "TYPEORM_PORT=${TYPEORM_PORT}" >> .env
@@ -427,20 +426,13 @@ jobs:
             echo "TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts" >> .env
             echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
             cat .env
+
             npm i
             npm run build
             tar -czf artifact.tar.gz dist/* package*
             cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/artifact.tar.gz
-            ls ../.circleci/ansible/roles/deploy/
             cd ../.circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
-            echo env
-            #cd backend
-            #npm install
-            #npm run build
-            #cd ../
-            #tar -czf backend.tar.gz backend
-            #ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
             
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
