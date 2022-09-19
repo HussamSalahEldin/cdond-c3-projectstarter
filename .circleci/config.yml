@@ -342,6 +342,33 @@ jobs:
       - revert-migrations:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["4c:99:15:d3:eb:ac:a1:cb:1b:5d:ed:a9:e2:16:84:b9"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            pip install awscli
+      - run:
+          name: Deploy backend
+          no_output_timeout: 10m
+          command: |
+            cd . 
+            tar -czvf backend.tar.gz ./backend
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID}
+      - revert-migrations:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID}      
+
+
   #deploy-backend:
   #  docker:
   #    - image: cimg/base:stable
@@ -386,59 +413,59 @@ jobs:
   #    - revert-migrations:
   #        Workflow_ID: ${CIRCLE_WORKFLOW_ID}      
 
-  deploy-backend:
-    docker:
-      # Docker image here that supports Ansible
-      - image: cimg/base:stable
-    steps:
-      # Checkout code from git
-      - checkout
-      - install_awscli
-      - install_ansible
-      - install_nodejs
-      - add_ssh_keys:
-          fingerprints: ["4c:99:15:d3:eb:ac:a1:cb:1b:5d:ed:a9:e2:16:84:b9"]
-      - attach_workspace:
-          at: ~/
-      - restore_cache:
-          keys: [backend-build]
-      - run:
-          name: Deploy backend
-          command: |
-            cd backend
-            export TYPEORM_ENTITIES=./backend/dist/modules/domain/**/*.entity{.ts,.js}
-            export TYPEORM_HOST=uda-database.cdaduydnc6bp.us-east-1.rds.amazonaws.com
-            export TYPEORM_PORT=5532
-            export TYPEORM_USERNAME=postgres
-            export TYPEORM_PASSWORD=mypassword
-            export TYPEORM_DATABASE=postgres
-            export TYPEORM_MIGRATIONS_DIR=./backend/dist/migrations
-            export TYPEORM_MIGRATIONS=./backend/dist/migrations/*.ts
+  # deploy-backend:
+  #   docker:
+  #     # Docker image here that supports Ansible
+  #     - image: cimg/base:stable
+  #   steps:
+  #     # Checkout code from git
+  #     - checkout
+  #     - install_awscli
+  #     - install_ansible
+  #     - install_nodejs
+  #     - add_ssh_keys:
+  #         fingerprints: ["4c:99:15:d3:eb:ac:a1:cb:1b:5d:ed:a9:e2:16:84:b9"]
+  #     - attach_workspace:
+  #         at: ~/
+  #     - restore_cache:
+  #         keys: [backend-build]
+  #     - run:
+  #         name: Deploy backend
+  #         command: |
+  #           cd backend
+  #           export TYPEORM_ENTITIES=./backend/dist/modules/domain/**/*.entity{.ts,.js}
+  #           export TYPEORM_HOST=uda-database.cdaduydnc6bp.us-east-1.rds.amazonaws.com
+  #           export TYPEORM_PORT=5532
+  #           export TYPEORM_USERNAME=postgres
+  #           export TYPEORM_PASSWORD=mypassword
+  #           export TYPEORM_DATABASE=postgres
+  #           export TYPEORM_MIGRATIONS_DIR=./backend/dist/migrations
+  #           export TYPEORM_MIGRATIONS=./backend/dist/migrations/*.ts
 
-            touch .env
-            echo "TYPEORM_HOST=${TYPEORM_HOST}"  >> .env
-            echo "TYPEORM_PORT=${TYPEORM_PORT}" >> .env
-            echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> .env
-            echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> .env
-            echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> .env
-            echo "TYPEORM_CONNECTION=postgres" >> .env
-            echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
-            echo "TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts" >> .env
-            echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
-            cat .env
+  #           touch .env
+  #           echo "TYPEORM_HOST=${TYPEORM_HOST}"  >> .env
+  #           echo "TYPEORM_PORT=${TYPEORM_PORT}" >> .env
+  #           echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> .env
+  #           echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> .env
+  #           echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> .env
+  #           echo "TYPEORM_CONNECTION=postgres" >> .env
+  #           echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
+  #           echo "TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts" >> .env
+  #           echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
+  #           cat .env
 
-            npm i
-            npm run build
-            tar -czf artifact.tar.gz dist/* package*
-            cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/artifact.tar.gz
+  #           npm i
+  #           npm run build
+  #           tar -czf artifact.tar.gz dist/* package*
+  #           cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/artifact.tar.gz
 
-            cd ../.circleci/ansible
-            ansible-playbook -i inventory.txt deploy-backend.yml
+  #           cd ../.circleci/ansible
+  #           ansible-playbook -i inventory.txt deploy-backend.yml
             
-      - destroy-environment:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+  #     - destroy-environment:
+  #         Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+  #     - revert-migrations:
+  #         Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   smoke-test:
     docker:

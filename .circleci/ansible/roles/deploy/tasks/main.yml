@@ -6,53 +6,45 @@
 #    dest: /home/ubuntu/
 #########WORKING#######################
 #########REPLACEMENT#######################
-- name: Create Backend Directory
-  file:
-    path: /home/ubuntu/backend
-    state: directory
+# - name: Create Backend Directory
+#   file:
+#     path: /home/ubuntu/backend
+#     state: directory
 
-- copy:
-    src: ~/project/.circleci/ansible/roles/deploy/artifact.tar.gz
-    dest: /home/ubuntu/backend
+# - copy:
+#     src: ~/project/.circleci/ansible/roles/deploy/artifact.tar.gz
+#     dest: /home/ubuntu/backend
 
-- name: Extract artifact.tar.gz to EC2 
-  unarchive:
-    src: artifact.tar.gz
-    dest: /home/ubuntu/backend
+# - name: Extract artifact.tar.gz to EC2 
+#   unarchive:
+#     src: artifact.tar.gz
+#     dest: /home/ubuntu/backend
+
+# - name: "Installing Node Dependencies"
+#   shell: |
+#     cd /home/ubuntu/backend
+#     npm i
+
+# - name: Start the app
+#   shell: |
+#     export TYPEORM_ENTITIES=./backend/dist/modules/domain/**/*.entity{.ts,.js}
+#     export TYPEORM_HOST=uda-database.cdaduydnc6bp.us-east-1.rds.amazonaws.com
+#     export TYPEORM_PORT=5532
+#     export TYPEORM_USERNAME=postgres
+#     export TYPEORM_PASSWORD=mypassword
+#     export TYPEORM_DATABASE=postgres
+#     export TYPEORM_MIGRATIONS_DIR=./backend/dist/migrations
+#     export TYPEORM_MIGRATIONS=./backend/dist/migrations/*.ts
+#     pm2 stop default
+#     pm2 start -f /home/ubuntu/backend/dist/main.js
+
+#   register: execute_node
+
+# - name: print message
+#   debug:
+#     msg: "{{ execute_node.stdout_lines }}"
 
 #########REPLACEMENT#######################
-
-
-- name: "Installing Node Dependencies"
-  shell: |
-    cd /home/ubuntu/backend
-    npm i
-
-- name: Start the app
-  shell: |
-    export TYPEORM_ENTITIES=./backend/dist/modules/domain/**/*.entity{.ts,.js}
-    export TYPEORM_HOST=uda-database.cdaduydnc6bp.us-east-1.rds.amazonaws.com
-    export TYPEORM_PORT=5532
-    export TYPEORM_USERNAME=postgres
-    export TYPEORM_PASSWORD=mypassword
-    export TYPEORM_DATABASE=postgres
-    export TYPEORM_MIGRATIONS_DIR=./backend/dist/migrations
-    export TYPEORM_MIGRATIONS=./backend/dist/migrations/*.ts
-    pm2 stop default
-    pm2 start -f /home/ubuntu/backend/dist/main.js
-
-
-  register: execute_node
-
-- name: print message
-  debug:
-    msg: "{{ execute_node.stdout_lines }}"
-
-#- name: "start server"
-#  command: pm2 start main.js --name=backend
-#  args:
-#    chdir: /home/ubuntu/backend/dist
-
 
 #- name: "Exporting environments"
 #  shell: |
@@ -69,3 +61,23 @@
 #  command: pm2 start main.js --name=backend
 #  args:
 #    chdir: /home/ubuntu/backend/dist
+
+
+- name: "Move files to server"
+  become: true
+  unarchive:
+    src: /root/project/backend.tar.gz
+    dest: /home/ubuntu
+
+- name: "install package"
+  shell: |
+    cd /home/ubuntu/backend
+    sudo npm install
+- name: "run migrations"
+  shell: |
+    cd /home/ubuntu/backend
+    sudo npm run migrations
+- name: Start PM2
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 start npm --name backend -- start
