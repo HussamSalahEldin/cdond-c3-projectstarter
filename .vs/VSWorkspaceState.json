@@ -5,13 +5,12 @@
     "\\.circleci\\ansible",
     "\\.circleci\\ansible\\roles",
     "\\.circleci\\ansible\\roles\\deploy",
-    "\\.circleci\\ansible\\roles\\deploy\\tasks",
+    "\\.circleci\\ansible\\roles\\deploy\\files",
     "\\.circleci\\files",
     "\\backend",
-    "\\backend\\src\\modules\\domain",
     "\\frontend",
     "\\util"
   ],
-  "SelectedNode": "\\backend",
+  "SelectedNode": "\\.circleci\\ansible\\roles\\deploy\\tasks\\main.yml",
   "PreviewInSolutionExplorer": false
 }
