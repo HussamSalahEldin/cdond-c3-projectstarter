@@ -1,4 +1,9 @@
 GITHUB REPO:	https://github.com/HussamSalahEldin/cdond-c3-projectstarter
 
-BUCKET:			s3://udapeople-804cedb/index.html
+BUCKET:		http://udapeople-20fc812.s3-website-us-east-1.amazonaws.com
 
+CLOUDFRONT:	d3cmzf7of01ayh.cloudfront.net
+
+BACKEND EC2:	ec2-23-22-100-165.compute-1.amazonaws.com
+
+PROMSERVER:	ec2-34-239-110-138.compute-1.amazonaws.com
