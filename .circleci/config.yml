@@ -86,6 +86,7 @@ commands:
           command: |
             SUCCESS=$(curl --insecure  https://kvdb.io/FpyqzBbD5rrhfYadEvNQYC/migration_<< parameters.Workflow_ID >>)
             # Logic for reverting the database state
+            echo 'success: ${SUCCESS}'
             if (( $SUCCESS == 1 ));
             then
               cd ~/project/backend
@@ -419,7 +420,7 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              exit 0
+              exit 1
             else
               exit 1
             fi         
@@ -439,9 +440,7 @@ jobs:
       - run:
           name: Save Old Workflow ID to kvdb.io
           command: |
-            export OLD_WORKFLOW_ID=$(aws cloudformation \
-                      list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-                      --no-paginate --output text)
+            export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name==`WorkflowID`].Value" --no-paginate --output text)
             echo "Old Wokflow ID: $OLD_WORKFLOW_ID"
             curl https://kvdb.io/FpyqzBbD5rrhfYadEvNQYC/old_workflow_id -d "${OLD_WORKFLOW_ID}"
       - run:
@@ -471,7 +470,7 @@ jobs:
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}"
 
-            export OldWorkflowID=$(curl --insecure https://kvdb.io/${KVDB_BUCKET}/old_workflow_id)
+            export OldWorkflowID=$(curl --insecure https://kvdb.io/FpyqzBbD5rrhfYadEvNQYC/old_workflow_id)
             echo Old Workflow ID: $OldWorkflowID 
 
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
